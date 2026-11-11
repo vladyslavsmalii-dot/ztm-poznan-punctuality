@@ -9,7 +9,7 @@ An end-to-end data project: I collect the live position and delay of every tram 
 - Which lines and stops are systematically late (or early)?
 - At what times of day and on which days does punctuality break down?
 - How do weather, weekends and public holidays (1 Nov, 11 Nov) change the picture?
-- Do vehicles bunch — two arriving together after a long gap?
+- Do vehicles bunch - two arriving together after a long gap?
 
 ## Data
 
@@ -34,15 +34,15 @@ flowchart LR
 ```
 
 - **Collection** runs 24/7 on a free-tier Google Cloud VM as a systemd service: it restarts itself after failures, skips duplicate snapshots, validates every download and stores everything in UTC.
-- **Processing** turns ~4,300 snapshots per day into ~245,000 rows: for every trip run and every stop — when the vehicle was there, which delay ZTM reported and where the vehicle was.
+- **Processing** turns ~4,300 snapshots per day into ~245,000 rows: for every trip run and every stop - when the vehicle was there, which delay ZTM reported and where the vehicle was.
 
 ## What I have learned about the data so far
 
 Checks on one full weekday (5 Nov 2026, `processing/explore_day.py`):
 
 1. **Realtime trips match the timetable.** 10,545 of 10,569 trip runs (99.8%) have a matching `trip_id` in the GTFS timetable, so planned and actual times can be joined directly.
-2. **One delay per vehicle — but it moves along the route.** Each update carries a single stop (`stop_sequence` + delay, no `stop_id`). Followed over time, `stop_sequence` advances: a median of 23 different stops is observed per trip, and for 97% of trips at least 80% of their stops are observed. Per-stop delays can therefore be rebuilt without map-matching GPS points.
-3. **The layover trap.** While a vehicle waits at the first stop, its reported delay counts up from a negative value to zero — e.g. line 215 at Luboń/Kręta: −16:07 → 0:00 in 20-second steps. Taken at face value, 24% of raw observations look more than a minute *early* — much of that is vehicles waiting at the terminus, not running early. So the analysis uses the moment a vehicle **leaves** a stop.
+2. **One delay per vehicle - but it moves along the route.** Each update carries a single stop (`stop_sequence` + delay, no `stop_id`). Followed over time, `stop_sequence` advances: a median of 23 different stops is observed per trip, and for 97% of trips at least 80% of their stops are observed. Per-stop delays can therefore be rebuilt without map-matching GPS points.
+3. **The layover trap.** While a vehicle waits at the first stop, its reported delay counts up from a negative value to zero - e.g. line 215 at Luboń/Kręta: −16:07 → 0:00 in 20-second steps. Taken at face value, 24% of raw observations look more than a minute *early* - much of that is vehicles waiting at the terminus, not running early. So the analysis uses the moment a vehicle **leaves** a stop.
 4. **Damaged downloads are rare.** 2 of 4,255 snapshots (0.05%) were truncated mid-download; they are skipped.
 5. **Time zones matter.** All data is stored in UTC; the collection period spans the switch from summer to winter time on 25 Oct 2026. `vehicle.timestamp` equals the feed time, not the GPS fix time.
 
@@ -93,6 +93,6 @@ Python (protobuf, csv, gzip), Linux & systemd, Google Cloud Compute Engine; next
 
 ## Data source
 
-Data source: **Zarząd Transportu Miejskiego w Poznaniu** ([ztm.poznan.pl](https://www.ztm.poznan.pl/otwarte-dane/dla-deweloperow/)) — GTFS and GTFS-Realtime open data.
+Data source: **Zarząd Transportu Miejskiego w Poznaniu** ([ztm.poznan.pl](https://www.ztm.poznan.pl/otwarte-dane/dla-deweloperow/)) - GTFS and GTFS-Realtime open data.
 Data period: from 4 Oct 2026 (collection ongoing); timetable versions downloaded daily.
 The data has been processed by the author (*dane zostały przetworzone przez autora*). Raw data is not redistributed in this repository.
